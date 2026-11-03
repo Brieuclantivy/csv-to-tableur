@@ -1,10 +1,10 @@
 {
   "name": "csv-to-tableur",
   "displayName": "CSV to Tableur",
-  "description": "Ouvre les CSV/TSV comme un tableur : tri, filtres façon Excel, comptage des lignes, statistiques, édition.",
+  "description": "Open CSV/TSV files as a spreadsheet: sorting, Excel-style filters, row count, statistics, editing.",
   "icon": "images/icon.png",
   "version": "0.1.0",
-  "publisher": "brieuc",
+  "publisher": "brieucInc",
   "license": "MIT",
   "repository": {
     "type": "git",
