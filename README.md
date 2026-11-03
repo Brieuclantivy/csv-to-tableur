@@ -25,6 +25,7 @@ A VS Code extension that opens `.csv` / `.tsv` files in a spreadsheet-like grid,
 ## Build from source
 
 ```sh
+npm install
 npm run package
 code --install-extension csv-to-tableur-0.1.0.vsix
 ```

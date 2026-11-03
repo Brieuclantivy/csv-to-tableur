@@ -36,8 +36,8 @@
   "main": "./extension.js",
   "scripts": {
     "test": "node --test test/core.test.js",
-    "package": "npx --yes @vscode/vsce package",
-    "publish": "npx --yes @vscode/vsce publish"
+    "package": "vsce package",
+    "publish": "vsce publish"
   },
   "contributes": {
     "customEditors": [
@@ -81,5 +81,8 @@
         }
       ]
     }
+  },
+  "devDependencies": {
+    "@vscode/vsce": "^4.1.0"
   }
 }
