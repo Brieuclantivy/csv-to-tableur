@@ -1,28 +1,30 @@
 # CSV to Tableur
 
-Extension VS Code qui ouvre les fichiers `.csv` / `.tsv` dans une grille façon Excel.
+A VS Code extension that opens `.csv` / `.tsv` files in a spreadsheet-like grid, the way Excel would.
 
-![Aperçu : tri et filtres sur un CSV](images/screenshot.png)
+![Preview: sorting and filtering a CSV file](images/screenshot.png)
 
-## Fonctionnalités
+> The interface is in French.
 
-- **Grille** : en-tête et numéros de ligne figés, lettres de colonnes (A, B, C…), nombres alignés à droite, `NULL` grisé, défilement virtuel (gros fichiers).
-- **Tri** : clic sur le nom de colonne → ▲ croissant → ▼ décroissant → aucun. Le tri reconnaît les nombres (`1,5`, `1 234`), les dates (`31/12/2024`, `2024-12-31`) et le texte (ordre naturel, insensible à la casse). Les vides restent en bas.
-- **Filtres façon Excel** (bouton ▾ de chaque colonne) :
-  - une condition : égal, différent, contient, commence/finit par, est vide / null, n'est pas vide, `>`, `≥`, `<`, `≤` ;
-  - une liste de valeurs à cocher, avec le nombre d'occurrences et une recherche.
-  - Les filtres de plusieurs colonnes se cumulent (ET). Exemple : `A = 'toot'` ET `B est vide`.
-- **Comptage** en bas à droite (et dans la barre d'état de VS Code) : `lignes affichées / total`.
-- **Recherche globale** dans toutes les colonnes.
-- **Sélection** à la souris ou au clavier (Maj pour étendre, clic sur une lettre = colonne entière, clic sur un numéro = ligne). Statistiques de la sélection : Nb, Somme, Moyenne, Min, Max.
-- **Copier** (Ctrl+C) : la sélection est copiée en tabulations et se colle directement dans Excel.
-- **Édition** : double-clic, Entrée, F2 ou frappe directe. Suppr vide les cellules. Ctrl+Z annule (géré par VS Code). La sauvegarde se fait comme pour un fichier texte (Ctrl+S).
-- **Séparateur** détecté automatiquement (`,` `;` Tab `|`), modifiable dans le pied de page. Case « 1re ligne = en-tête ».
-- **Exporter la vue** : enregistre les lignes filtrées et triées dans un nouveau fichier.
-- Redimensionnement des colonnes (glisser le bord ; double-clic = ajustement automatique).
-- Bouton « Ouvrir en texte » pour revenir à l'éditeur classique.
+## Features
 
-## Installation
+- **Grid**: frozen header and row numbers, column letters (A, B, C…), right-aligned numbers, greyed-out `NULL` values, virtual scrolling for large files.
+- **Sorting**: click a column name → ▲ ascending → ▼ descending → none. Numbers (`1,5`, `1 234`), dates (`31/12/2024`, `2024-12-31`) and text (natural order, case-insensitive) are all recognised. Empty cells always stay at the bottom.
+- **Excel-style filters** (▾ button on each column):
+  - a condition: equals, not equals, contains, starts/ends with, is empty / null, is not empty, `>`, `≥`, `<`, `≤`;
+  - a checklist of values, with occurrence counts and a search box.
+  - Filters on several columns combine with AND. Example: `A = 'toot'` AND `B is empty`.
+- **Row count** in the bottom-right corner (and in the VS Code status bar): `shown rows / total`.
+- **Global search** across all columns.
+- **Selection** with the mouse or keyboard (Shift to extend, click a letter to select a whole column, click a row number to select a row). Selection statistics: count, sum, average, min, max.
+- **Copy** (Ctrl+C): the selection is copied as tab-separated values and pastes straight into Excel.
+- **Editing**: double-click, Enter, F2 or just start typing. Delete clears cells. Ctrl+Z undoes (handled by VS Code). Save as usual with Ctrl+S.
+- **Delimiter** auto-detected (`,` `;` Tab `|`), can be changed in the footer. "First row is a header" checkbox.
+- **Export view**: saves the filtered and sorted rows to a new file.
+- Resizable columns (drag the edge; double-click to auto-fit).
+- "Open as text" button to switch back to the regular editor.
+
+## Build from source
 
 ```sh
 npm run package
@@ -34,3 +36,7 @@ code --install-extension csv-to-tableur-0.1.0.vsix
 ```sh
 npm test
 ```
+
+## License
+
+MIT
