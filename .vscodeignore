@@ -1,0 +1,8 @@
+test/**
+images/icon.svg
+*.vsix
+.vscodeignore
+.gitignore
+*.csv
+*.tsv
+images/screenshot.png

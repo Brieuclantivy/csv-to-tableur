@@ -1,0 +1,82 @@
+{
+  "name": "csv-to-tableur",
+  "displayName": "CSV to Tableur",
+  "description": "Ouvre les CSV/TSV comme un tableur : tri, filtres façon Excel, comptage des lignes, statistiques, édition.",
+  "icon": "images/icon.png",
+  "version": "0.1.0",
+  "publisher": "brieuc",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Brieuclantivy/csv-to-tableur.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Brieuclantivy/csv-to-tableur/issues"
+  },
+  "homepage": "https://github.com/Brieuclantivy/csv-to-tableur#readme",
+  "keywords": [
+    "csv",
+    "tsv",
+    "tableur",
+    "excel",
+    "filtre",
+    "tableau",
+    "grid"
+  ],
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Visualization",
+    "Other"
+  ],
+  "main": "./extension.js",
+  "scripts": {
+    "test": "node --test test/core.test.js",
+    "package": "npx --yes @vscode/vsce package",
+    "publish": "npx --yes @vscode/vsce publish"
+  },
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "csvViewer.editor",
+        "displayName": "CSV to Tableur",
+        "selector": [
+          {
+            "filenamePattern": "*.csv"
+          },
+          {
+            "filenamePattern": "*.tsv"
+          }
+        ],
+        "priority": "default"
+      }
+    ],
+    "commands": [
+      {
+        "command": "csvViewer.open",
+        "title": "Ouvrir dans CSV to Tableur",
+        "icon": "$(table)"
+      },
+      {
+        "command": "csvViewer.openText",
+        "title": "Ouvrir en texte",
+        "icon": "$(go-to-file)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "csvViewer.open",
+          "when": "resourceExtname =~ /^\\.(csv|tsv)$/i && activeEditor == workbench.editors.files.textFileEditor",
+          "group": "navigation"
+        },
+        {
+          "command": "csvViewer.openText",
+          "when": "activeCustomEditorId == csvViewer.editor",
+          "group": "navigation"
+        }
+      ]
+    }
+  }
+}

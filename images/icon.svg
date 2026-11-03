@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1f9d55"/>
+      <stop offset="1" stop-color="#157a41"/>
+    </linearGradient>
+  </defs>
+  <!-- Feuille -->
+  <rect x="8" y="8" width="112" height="112" rx="18" fill="url(#bg)"/>
+  <!-- Grille -->
+  <rect x="22" y="24" width="84" height="80" rx="6" fill="#ffffff"/>
+  <rect x="22" y="24" width="84" height="20" rx="6" fill="#d7f2e1"/>
+  <rect x="22" y="38" width="84" height="6" fill="#d7f2e1"/>
+  <g stroke="#9bcfb0" stroke-width="2">
+    <line x1="22" y1="44" x2="106" y2="44"/>
+    <line x1="22" y1="64" x2="106" y2="64"/>
+    <line x1="22" y1="84" x2="106" y2="84"/>
+    <line x1="50" y1="24" x2="50" y2="104"/>
+    <line x1="78" y1="24" x2="78" y2="104"/>
+  </g>
+  <!-- Cellule sélectionnée -->
+  <rect x="51" y="65" width="26" height="18" fill="#cde4ff" stroke="#1a73e8" stroke-width="3"/>
+  <!-- Entonnoir de filtre -->
+  <circle cx="100" cy="98" r="20" fill="#ffffff"/>
+  <circle cx="100" cy="98" r="17" fill="#1a73e8"/>
+  <path d="M89 89 h22 l-8.5 10 v9 l-5 3 v-12 z" fill="#ffffff"/>
+</svg>
