@@ -17,11 +17,14 @@
   "keywords": [
     "csv",
     "tsv",
-    "tableur",
+    "spreadsheet",
     "excel",
-    "filtre",
-    "tableau",
-    "grid"
+    "filter",
+    "sort",
+    "table",
+    "grid",
+    "viewer",
+    "tableur"
   ],
   "engines": {
     "vscode": "^1.80.0"
@@ -55,12 +58,12 @@
     "commands": [
       {
         "command": "csvViewer.open",
-        "title": "Ouvrir dans CSV to Tableur",
+        "title": "Open in CSV to Tableur",
         "icon": "$(table)"
       },
       {
         "command": "csvViewer.openText",
-        "title": "Ouvrir en texte",
+        "title": "Open as text",
         "icon": "$(go-to-file)"
       }
     ],

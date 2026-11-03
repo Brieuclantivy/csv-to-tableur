@@ -4,8 +4,6 @@ A VS Code extension that opens `.csv` / `.tsv` files in a spreadsheet-like grid,
 
 ![Preview: sorting and filtering a CSV file](images/screenshot.png)
 
-> The interface is in French.
-
 ## Features
 
 - **Grid**: frozen header and row numbers, column letters (A, B, C…), right-aligned numbers, greyed-out `NULL` values, virtual scrolling for large files.

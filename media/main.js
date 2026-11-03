@@ -16,12 +16,12 @@
   const OPS = {
     eq: a => `= ${q(a)}`,
     neq: a => `≠ ${q(a)}`,
-    contains: a => `contient ${q(a)}`,
-    notcontains: a => `ne contient pas ${q(a)}`,
-    starts: a => `commence par ${q(a)}`,
-    ends: a => `finit par ${q(a)}`,
-    empty: () => 'est vide',
-    notempty: () => "n'est pas vide",
+    contains: a => `contains ${q(a)}`,
+    notcontains: a => `does not contain ${q(a)}`,
+    starts: a => `starts with ${q(a)}`,
+    ends: a => `ends with ${q(a)}`,
+    empty: () => 'is empty',
+    notempty: () => 'is not empty',
     gt: a => `> ${a}`,
     gte: a => `≥ ${a}`,
     lt: a => `< ${a}`,
@@ -77,7 +77,7 @@
   }
 
   function fmt(n) {
-    return n.toLocaleString('fr-FR', { maximumFractionDigits: 10 });
+    return n.toLocaleString(undefined, { maximumFractionDigits: 10 });
   }
 
   // ---------- Chargement ----------
@@ -208,7 +208,7 @@
     colgroup.innerHTML = `<col style="width:${rnWidth}px">` + widths.map(w => `<col style="width:${w}px">`).join('');
     table.style.width = rnWidth + widths.reduce((a, b) => a + b, 0) + 'px';
 
-    let h = '<tr><th class="rn corner" title="Tout sélectionner"></th>';
+    let h = '<tr><th class="rn corner" title="Select all"></th>';
 
     for (let c = 0; c < ncols; c++) {
       const f = filters.get(c);
@@ -216,11 +216,11 @@
       const name = headers[c];
 
       h += `<th data-c="${c}"><div class="h">`
-        + `<span class="letter" title="Sélectionner la colonne">${colLetter(c)}</span>`
-        + `<span class="name" title="${esc(name)}${name ? ' — ' : ''}cliquer pour trier">${esc(name)}</span>`
+        + `<span class="letter" title="Select column">${colLetter(c)}</span>`
+        + `<span class="name" title="${esc(name)}${name ? ' — ' : ''}click to sort">${esc(name)}</span>`
         + `<span class="sort">${s}</span>`
-        + `<button class="fbtn${f ? ' on' : ''}" title="Trier / filtrer">${f ? '⏷' : '▾'}</button>`
-        + '</div><div class="resizer" title="Glisser pour redimensionner, double-clic pour ajuster"></div></th>';
+        + `<button class="fbtn${f ? ' on' : ''}" title="Sort / filter">${f ? '⏷' : '▾'}</button>`
+        + '</div><div class="resizer" title="Drag to resize, double-click to auto-fit"></div></th>';
     }
 
     thead.innerHTML = h + '</tr>';
@@ -291,7 +291,7 @@
     }
 
     if (!view.length) {
-      h += `<tr class="empty"><td colspan="${ncols + 1}">${parsed.rows.length ? 'Aucune ligne ne correspond aux filtres.' : 'Fichier vide.'}</td></tr>`;
+      h += `<tr class="empty"><td colspan="${ncols + 1}">${parsed.rows.length ? 'No rows match the filters.' : 'Empty file.'}</td></tr>`;
     }
 
     tbody.innerHTML = h;
@@ -301,7 +301,7 @@
     const parts = [];
 
     if (sort) {
-      parts.push(`<span class="chip" data-kind="sort">Tri : ${esc(colName(sort.col))} ${sort.dir > 0 ? '▲' : '▼'}<b data-x="sort">✕</b></span>`);
+      parts.push(`<span class="chip" data-kind="sort">Sort: ${esc(colName(sort.col))} ${sort.dir > 0 ? '▲' : '▼'}<b data-x="sort">✕</b></span>`);
     }
 
     for (const [c, f] of filters) {
@@ -312,24 +312,24 @@
       }
 
       if (f.values) {
-        conds.push(f.values.size === 1 ? `= ${q([...f.values][0])}` : `∈ ${f.values.size} valeurs`);
+        conds.push(f.values.size === 1 ? `= ${q([...f.values][0])}` : `∈ ${f.values.size} values`);
       }
 
-      parts.push(`<span class="chip" data-c="${c}">${esc(colName(c))} ${esc(conds.join(' et '))}<b data-x="${c}">✕</b></span>`);
+      parts.push(`<span class="chip" data-c="${c}">${esc(colName(c))} ${esc(conds.join(' and '))}<b data-x="${c}">✕</b></span>`);
     }
 
     if (search) {
-      parts.push(`<span class="chip">Recherche ${esc(q(search))}<b data-x="search">✕</b></span>`);
+      parts.push(`<span class="chip">Search ${esc(q(search))}<b data-x="search">✕</b></span>`);
     }
 
-    $('chips').innerHTML = parts.join('<span class="and">ET</span>');
+    $('chips').innerHTML = parts.join('<span class="and">AND</span>');
   }
 
   function renderCounts(total) {
     const el = $('counts');
     const filtered = view.length !== total;
     el.classList.toggle('filtered', filtered);
-    el.innerHTML = `<b>${fmt(view.length)}</b> / ${fmt(total)} lignes · ${ncols} colonnes`;
+    el.innerHTML = `<b>${fmt(view.length)}</b> / ${fmt(total)} rows · ${ncols} columns`;
   }
 
   function renderSelStats() {
@@ -342,7 +342,7 @@
     }
 
     if ((s.r1 - s.r0 + 1) * (s.c1 - s.c0 + 1) > 3e6) {
-      el.textContent = 'Sélection trop grande pour les statistiques';
+      el.textContent = 'Selection too large for statistics';
       return;
     }
 
@@ -374,10 +374,10 @@
       }
     }
 
-    const parts = [`Nb : ${fmt(count)}`];
+    const parts = [`Count: ${fmt(count)}`];
 
     if (nums) {
-      parts.push(`Somme : ${fmt(sum)}`, `Moyenne : ${fmt(sum / nums)}`, `Min : ${fmt(min)}`, `Max : ${fmt(max)}`);
+      parts.push(`Sum: ${fmt(sum)}`, `Average: ${fmt(sum / nums)}`, `Min: ${fmt(min)}`, `Max: ${fmt(max)}`);
     }
 
     el.textContent = parts.join('  ·  ');
@@ -853,15 +853,15 @@
 
     let h = shown.map((v, i) =>
       `<label><input type="checkbox" data-i="${i}"${checked.has(v) ? ' checked' : ''}>`
-      + `<span class="v">${v === '' ? '<i>(vide)</i>' : esc(v)}</span>`
+      + `<span class="v">${v === '' ? '<i>(empty)</i>' : esc(v)}</span>`
       + `<span class="cnt">${fmt(counts.get(v))}</span></label>`).join('');
 
     if (visible.length > shown.length) {
-      h += `<div class="more">… ${fmt(visible.length - shown.length)} autres valeurs, affinez la recherche</div>`;
+      h += `<div class="more">… ${fmt(visible.length - shown.length)} more values, refine your search</div>`;
     }
 
     if (!visible.length) {
-      h = '<div class="more">Aucune valeur</div>';
+      h = '<div class="more">No values</div>';
     }
 
     $('mvals').innerHTML = h;

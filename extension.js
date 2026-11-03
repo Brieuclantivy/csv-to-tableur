@@ -62,8 +62,8 @@ class CsvEditorProvider {
       }
 
       const filtered = counts.shown !== counts.total;
-      this.status.text = `$(table) ${counts.shown} / ${counts.total} lignes`;
-      this.status.tooltip = `${counts.cols} colonnes${filtered ? ' — filtre actif' : ''}`;
+      this.status.text = `$(table) ${counts.shown} / ${counts.total} rows`;
+      this.status.tooltip = `${counts.cols} columns${filtered ? ' — filter active' : ''}`;
       this.status.show();
     };
 
@@ -118,13 +118,13 @@ class CsvEditorProvider {
         case 'export': {
           const parsed = path.parse(document.uri.fsPath);
           const target = await vscode.window.showSaveDialog({
-            defaultUri: vscode.Uri.file(path.join(parsed.dir, `${parsed.name}-vue${parsed.ext}`)),
+            defaultUri: vscode.Uri.file(path.join(parsed.dir, `${parsed.name}-view${parsed.ext}`)),
             filters: { CSV: ['csv', 'tsv', 'txt'] },
           });
 
           if (target) {
             await vscode.workspace.fs.writeFile(target, Buffer.from(msg.text, 'utf8'));
-            vscode.window.showInformationMessage(`Vue exportée : ${target.fsPath}`);
+            vscode.window.showInformationMessage(`View exported: ${target.fsPath}`);
           }
 
           break;
@@ -142,7 +142,7 @@ class CsvEditorProvider {
     const uri = f => webview.asWebviewUri(vscode.Uri.joinPath(media, f));
 
     return `<!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}';">
@@ -151,7 +151,7 @@ class CsvEditorProvider {
 </head>
 <body>
 <div id="toolbar">
-  <input id="search" type="search" placeholder="Rechercher dans toutes les colonnes…">
+  <input id="search" type="search" placeholder="Search all columns…">
   <div id="chips"></div>
 </div>
 <div id="grid" tabindex="0">
@@ -160,7 +160,7 @@ class CsvEditorProvider {
 </div>
 <div id="footer">
   <div class="left">
-    <label>Séparateur
+    <label>Delimiter
       <select id="delim">
         <option value="auto">Auto</option>
         <option value=",">,</option>
@@ -169,10 +169,10 @@ class CsvEditorProvider {
         <option value="|">|</option>
       </select>
     </label>
-    <label><input type="checkbox" id="hdr" checked> 1re ligne = en-tête</label>
-    <button id="clearAll" title="Retirer tous les filtres, la recherche et le tri">Tout effacer</button>
-    <button id="export" title="Enregistrer les lignes affichées (filtrées et triées) dans un nouveau fichier">Exporter la vue</button>
-    <button id="openText">Ouvrir en texte</button>
+    <label><input type="checkbox" id="hdr" checked> First row is a header</label>
+    <button id="clearAll" title="Remove all filters, the search and the sort">Clear all</button>
+    <button id="export" title="Save the displayed rows (filtered and sorted) to a new file">Export view</button>
+    <button id="openText">Open as text</button>
   </div>
   <div class="right">
     <span id="selstats"></span>
@@ -181,36 +181,36 @@ class CsvEditorProvider {
 </div>
 <div id="menu" hidden>
   <div class="mtitle" id="mtitle"></div>
-  <button class="mitem" data-sort="1">↑ Trier du plus petit au plus grand (A → Z)</button>
-  <button class="mitem" data-sort="-1">↓ Trier du plus grand au plus petit (Z → A)</button>
-  <button class="mitem" data-sort="0">Retirer le tri</button>
+  <button class="mitem" data-sort="1">↑ Sort smallest to largest (A → Z)</button>
+  <button class="mitem" data-sort="-1">↓ Sort largest to smallest (Z → A)</button>
+  <button class="mitem" data-sort="0">Remove sort</button>
   <hr>
   <div class="mlabel">Condition</div>
   <div class="mrow">
     <select id="mop">
-      <option value="">(aucune)</option>
-      <option value="eq">est égal à</option>
-      <option value="neq">est différent de</option>
-      <option value="contains">contient</option>
-      <option value="notcontains">ne contient pas</option>
-      <option value="starts">commence par</option>
-      <option value="ends">se termine par</option>
-      <option value="empty">est vide / null</option>
-      <option value="notempty">n'est pas vide</option>
+      <option value="">(none)</option>
+      <option value="eq">equals</option>
+      <option value="neq">does not equal</option>
+      <option value="contains">contains</option>
+      <option value="notcontains">does not contain</option>
+      <option value="starts">starts with</option>
+      <option value="ends">ends with</option>
+      <option value="empty">is empty / null</option>
+      <option value="notempty">is not empty</option>
       <option value="gt">&gt;</option>
       <option value="gte">≥</option>
       <option value="lt">&lt;</option>
       <option value="lte">≤</option>
     </select>
-    <input id="marg" placeholder="valeur">
+    <input id="marg" placeholder="value">
   </div>
   <hr>
-  <div class="mlabel">Valeurs</div>
-  <input id="msearch" type="search" placeholder="Rechercher une valeur…">
-  <label class="mall"><input type="checkbox" id="mall"> (Tout sélectionner)</label>
+  <div class="mlabel">Values</div>
+  <input id="msearch" type="search" placeholder="Search values…">
+  <label class="mall"><input type="checkbox" id="mall"> (Select all)</label>
   <div id="mvals"></div>
   <div class="mactions">
-    <button id="mclear" class="secondary">Effacer le filtre</button>
+    <button id="mclear" class="secondary">Clear filter</button>
     <button id="mok">OK</button>
   </div>
 </div>
