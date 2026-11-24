@@ -1,7 +1,7 @@
 {
   "name": "csv-to-tableur",
   "displayName": "CSV to Tableur",
-  "description": "Open CSV/TSV files as a spreadsheet: sorting, Excel-style filters, row count, statistics, editing.",
+  "description": "Open CSV/TSV files as a spreadsheet: sorting, Excel-style filters, row count, statistics, editing, and comparison of two files on a key column.",
   "icon": "images/icon.png",
   "version": "0.2.0",
   "publisher": "brieucInc",
@@ -24,7 +24,9 @@
     "table",
     "grid",
     "viewer",
-    "tableur"
+    "tableur",
+    "compare",
+    "diff"
   ],
   "engines": {
     "vscode": "^1.80.0"
