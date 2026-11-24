@@ -1031,6 +1031,8 @@
     vscode.postMessage({ type: 'export', text: C.serialize(rows, delim, parsed.eol, true, false) });
   });
 
+  $('compare').addEventListener('click', () => vscode.postMessage({ type: 'compare', delim, hasHeader }));
+
   $('openText').addEventListener('click', () => vscode.postMessage({ type: 'openText' }));
 
   // ---------- Messages de l'extension ----------

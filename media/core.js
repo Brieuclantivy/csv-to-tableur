@@ -317,6 +317,56 @@
     return idx;
   }
 
+  // Compare deux tables via une colonne clé ; clés et valeurs sont comparées sans les espaces autour.
+  // key : [colonne A, colonne B] ; pairs : [[colonne A, colonne B, libellé], ...].
+  // Une clé répétée est appariée dans l'ordre : 1re occurrence de A avec 1re de B, etc.
+  // Renvoie les lignes [statut, clé, libellés des colonnes différentes, valeur A, valeur B, ...].
+  function compareTables(rowsA, rowsB, key, pairs) {
+    const val = (r, c) => (r[c] ?? '').trim();
+    const byKey = new Map();
+    const matched = new Array(rowsB.length).fill(false);
+
+    rowsB.forEach((r, i) => {
+      const k = val(r, key[1]);
+
+      if (!byKey.has(k)) {
+        byKey.set(k, []);
+      }
+
+      byKey.get(k).push(i);
+    });
+
+    const line = (status, k, a, b) => {
+      const diffs = a && b ? pairs.filter(p => val(a, p[0]) !== val(b, p[1])).map(p => p[2]) : [];
+      const cells = pairs.flatMap(p => [a ? (a[p[0]] ?? '') : '', b ? (b[p[1]] ?? '') : '']);
+
+      return [status || (diffs.length ? 'different' : 'same'), k, diffs.join(', '), ...cells];
+    };
+
+    const out = [];
+
+    for (const a of rowsA) {
+      const k = val(a, key[0]);
+      const queue = byKey.get(k);
+
+      if (queue && queue.length) {
+        const i = queue.shift();
+        matched[i] = true;
+        out.push(line(null, k, a, rowsB[i]));
+      } else {
+        out.push(line('only in A', k, a, null));
+      }
+    }
+
+    rowsB.forEach((b, i) => {
+      if (!matched[i]) {
+        out.push(line('only in B', val(b, key[1]), null, b));
+      }
+    });
+
+    return out;
+  }
+
   return {
     parse,
     serialize,
@@ -328,5 +378,6 @@
     isEmptyValue,
     matchCondition,
     computeView,
+    compareTables,
   };
 });

@@ -82,3 +82,25 @@ test('conditions numériques', () => {
   assert.strictEqual(C.matchCondition('9', 'gt', '10'), false);
   assert.strictEqual(C.matchCondition('', 'lt', '10'), false);
 });
+
+test('compareTables : clés de noms différents, absents, différences, doublons', () => {
+  // A : id_patient;age;sexe — B : sexe;patient_id;age
+  const a = [['1', '40', 'F'], ['2', '50', 'M'], [' 3 ', '60', 'F'], ['4', '70', 'M'], ['4', '71', 'M']];
+  const b = [['F', '1', '40'], ['F', '3', '61 '], ['M', '4', '70'], ['F', '5', '20']];
+  const out = C.compareTables(a, b, [0, 1], [[1, 2, 'age'], [2, 0, 'sexe']]);
+
+  assert.deepStrictEqual(out, [
+    ['same', '1', '', '40', '40', 'F', 'F'],
+    ['only in A', '2', '', '50', '', 'M', ''],
+    ['different', '3', 'age', '60', '61 ', 'F', 'F'],
+    ['same', '4', '', '70', '70', 'M', 'M'],
+    ['only in A', '4', '', '71', '', 'M', ''],
+    ['only in B', '5', '', '', '20', '', 'F'],
+  ]);
+});
+
+test('compareTables : sans colonne comparée, seules les clés comptent', () => {
+  const out = C.compareTables([['1'], ['2']], [['2'], ['3']], [0, 0], []);
+
+  assert.deepStrictEqual(out, [['only in A', '1', ''], ['same', '2', ''], ['only in B', '3', '']]);
+});

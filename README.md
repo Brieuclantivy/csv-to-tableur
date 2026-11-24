@@ -19,6 +19,7 @@ A VS Code extension that opens `.csv` / `.tsv` files in a spreadsheet-like grid,
 - **Editing**: double-click, Enter, F2 or just start typing. Delete clears cells. Ctrl+Z undoes (handled by VS Code). Save as usual with Ctrl+S.
 - **Delimiter** auto-detected (`,` `;` Tab `|`), can be changed in the footer. "First row is a header" checkbox.
 - **Export view**: saves the filtered and sorted rows to a new file.
+- **Compare with…**: compares the open file (A) with another CSV (B) on a key column (e.g. a patient id; the column names may differ, e.g. `id_patient` ↔ `patient_id`) and the columns you choose. The result opens in the grid, read-only and in memory only, with a *Status* column (`only in A`, `only in B`, `different`, `same`) and the names of the differing columns. Keys and values are compared ignoring surrounding spaces; a repeated key is paired in order of appearance.
 - Resizable columns (drag the edge; double-click to auto-fit).
 - "Open as text" button to switch back to the regular editor.
 

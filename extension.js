@@ -1,8 +1,12 @@
 const vscode = require('vscode');
 const crypto = require('crypto');
 const path = require('path');
+const C = require('./media/core.js');
 
 const VIEW_TYPE = 'csvViewer.editor';
+const COMPARE_SCHEME = 'csv-compare';
+const compared = new Map(); // uri -> texte des résultats de comparaison (jamais écrit sur disque)
+let compareCount = 0;
 
 function activate(context) {
   const status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
@@ -13,6 +17,10 @@ function activate(context) {
     vscode.window.registerCustomEditorProvider(VIEW_TYPE, provider, {
       webviewOptions: { retainContextWhenHidden: true },
     }),
+    vscode.workspace.registerTextDocumentContentProvider(COMPARE_SCHEME, {
+      provideTextDocumentContent: uri => compared.get(uri.toString()) ?? '',
+    }),
+    vscode.workspace.onDidCloseTextDocument(doc => compared.delete(doc.uri.toString())),
     vscode.commands.registerCommand('csvViewer.open', uri => {
       const target = uri || vscode.window.activeTextEditor?.document.uri;
 
@@ -106,7 +114,14 @@ class CsvEditorProvider {
           const edit = new vscode.WorkspaceEdit();
           const end = document.lineAt(document.lineCount - 1).range.end;
           edit.replace(document.uri, new vscode.Range(0, 0, end.line, end.character), msg.text);
-          await vscode.workspace.applyEdit(edit);
+          const ok = await vscode.workspace.applyEdit(edit);
+
+          // Document en lecture seule (résultat de comparaison) : la grille revient au contenu réel.
+          if (!ok) {
+            lastSent = null;
+            send();
+          }
+
           break;
         }
 
@@ -129,6 +144,10 @@ class CsvEditorProvider {
 
           break;
         }
+
+        case 'compare':
+          await compareWith(document, msg.delim, msg.hasHeader);
+          break;
 
         case 'openText':
           vscode.commands.executeCommand('vscode.openWith', document.uri, 'default');
@@ -171,6 +190,7 @@ class CsvEditorProvider {
     </label>
     <label><input type="checkbox" id="hdr" checked> First row is a header</label>
     <button id="clearAll" title="Remove all filters, the search and the sort">Clear all</button>
+    <button id="compare" title="Compare this file (A) with another CSV (B) on a key column and chosen columns">Compare with…</button>
     <button id="export" title="Save the displayed rows (filtered and sorted) to a new file">Export view</button>
     <button id="openText">Open as text</button>
   </div>
@@ -219,6 +239,146 @@ class CsvEditorProvider {
 </body>
 </html>`;
   }
+}
+
+function colLetter(c) {
+  let s = '';
+  c++;
+
+  while (c > 0) {
+    const m = (c - 1) % 26;
+    s = String.fromCharCode(65 + m) + s;
+    c = Math.floor((c - 1) / 26);
+  }
+
+  return s;
+}
+
+function readTable(text, delim, hasHeader) {
+  const rows = C.parse(text, delim).rows.filter(r => r.length > 1 || r[0] !== '');
+  const header = hasHeader ? rows.shift() || [] : [];
+  let ncols = header.length;
+
+  for (const r of rows) {
+    if (r.length > ncols) {
+      ncols = r.length;
+    }
+  }
+
+  const names = [];
+
+  for (let c = 0; c < ncols; c++) {
+    names.push((header[c] ?? '').trim());
+  }
+
+  return { rows, names };
+}
+
+function colLabel(t, c) {
+  return t.names[c] || colLetter(c);
+}
+
+function columnItems(t) {
+  return t.names.map((n, c) => ({ label: n ? `${colLetter(c)} — ${n}` : colLetter(c), c }));
+}
+
+async function pickColumn(t, title) {
+  const it = await vscode.window.showQuickPick(columnItems(t), { title, placeHolder: 'Pick a column' });
+
+  return it?.c;
+}
+
+// Colonne de B correspondant à la colonne c de A : même nom (sans casse), sinon choix manuel.
+async function matchColumn(a, c, b) {
+  const name = a.names[c].toLowerCase();
+  const found = name ? b.names.findIndex(n => n.toLowerCase() === name) : -1;
+
+  if (found >= 0) {
+    return found;
+  }
+
+  return pickColumn(b, `Column of B matching "${colLabel(a, c)}" of A`);
+}
+
+async function compareWith(docA, delimA, hasHeader) {
+  const pathA = docA.uri.fsPath;
+  const picked = await vscode.window.showOpenDialog({
+    defaultUri: vscode.Uri.file(path.dirname(pathA)),
+    canSelectMany: false,
+    filters: { CSV: ['csv', 'tsv', 'txt'] },
+    openLabel: 'Compare',
+    title: `Compare ${path.basename(pathA)} (A) with… (B)`,
+  });
+
+  if (!picked) {
+    return;
+  }
+
+  const docB = await vscode.workspace.openTextDocument(picked[0]);
+  const textB = docB.getText();
+  const a = readTable(docA.getText(), delimA, hasHeader);
+  const b = readTable(textB, C.detectDelimiter(textB), hasHeader);
+
+  const keyA = await pickColumn(a, 'Key column of A (e.g. the patient id)');
+
+  if (keyA === undefined) {
+    return;
+  }
+
+  const keyB = await matchColumn(a, keyA, b);
+
+  if (keyB === undefined) {
+    return;
+  }
+
+  const cols = await vscode.window.showQuickPick(columnItems(a).filter(it => it.c !== keyA), {
+    title: 'Columns of A to compare',
+    placeHolder: 'Tick the columns to compare, or none to compare the keys only',
+    canPickMany: true,
+  });
+
+  if (!cols) {
+    return;
+  }
+
+  const pairs = [];
+
+  for (const it of cols) {
+    const cb = await matchColumn(a, it.c, b);
+
+    if (cb === undefined) {
+      return;
+    }
+
+    pairs.push([it.c, cb, colLabel(a, it.c)]);
+  }
+
+  const kA = colLabel(a, keyA);
+  const kB = colLabel(b, keyB);
+  const header = ['Status', kA === kB ? kA : `${kA} / ${kB}`, 'Differences'];
+
+  for (const [ca, cb] of pairs) {
+    header.push(`${colLabel(a, ca)} (A)`, `${colLabel(b, cb)} (B)`);
+  }
+
+  const body = C.compareTables(a.rows, b.rows, [keyA, keyB], pairs);
+  const pathB = picked[0].fsPath;
+  const uri = vscode.Uri.joinPath(
+    vscode.Uri.file(path.dirname(pathA)),
+    `${path.parse(pathA).name} vs ${path.parse(pathB).name}.csv`,
+  ).with({ scheme: COMPARE_SCHEME, query: String(++compareCount) });
+
+  compared.set(uri.toString(), C.serialize([header, ...body], delimA, '\n', true, false));
+  await vscode.commands.executeCommand('vscode.openWith', uri, VIEW_TYPE);
+
+  const n = {};
+
+  for (const r of body) {
+    n[r[0]] = (n[r[0]] || 0) + 1;
+  }
+
+  const summary = ['only in A', 'only in B', 'different', 'same'].map(s => `${n[s] || 0} ${s}`).join(', ');
+  vscode.window.showInformationMessage(`A = ${pathA} — B = ${pathB}: ${summary}. Filter the Status column to list them.`);
 }
 
 function deactivate() {}
